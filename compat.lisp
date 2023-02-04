@@ -5,23 +5,20 @@
              (let ((%array-data-vector (or (find-symbol "%ARRAY-DATA-VECTOR" :sb-kernel)
                                            (find-symbol "%ARRAY-DATA" :sb-kernel)))) ;; renamed in sbcl 2.1.6
                `(progn
-                  (declaim (ftype (function (array) (values (simple-array * (*)) &optional)) array-storage-vector))
-                  (defun array-storage-vector (array)
+                  (declaim (ftype (function (array) (values (simple-array * (*)) &optional)) array-storage-vector&))
+                  (defun array-storage-vector& (array)
                     "Returns the underlying storage vector of ARRAY, which must be a non-displaced array.
-
-In SBCL, if ARRAY is a of type \(SIMPLE-ARRAY * \(*)), it is its own storage
-vector. Multidimensional arrays, arrays with fill pointers, and adjustable
-arrays have an underlying storage vector with the same ARRAY-ELEMENT-TYPE as
-ARRAY, which this function returns.
-
-Important note: the underlying vector is an implementation detail. Even though
-this function exposes it, changes in the implementation may cause this
-function to be removed without further warning."
+ In SBCL, if ARRAY is a of type \(SIMPLE-ARRAY * \(*)), it is its own storage
+ vector. Multidimensional arrays, arrays with fill pointers, and adjustable
+ arrays have an underlying storage vector with the same ARRAY-ELEMENT-TYPE as
+ ARRAY, which this function returns.
+ Important note: the underlying vector is an implementation detail. Even though
+ this function exposes it, changes in the implementation may cause this
+ function to be removed without further warning."
                     (sb-ext:truly-the (simple-array * (*))
                                       (if (sb-kernel:array-header-p array)
                                           (if (sb-kernel:%array-displaced-p array)
-                                              (error "~S cannot be used with displaced arrays. Use ~S instead."
-                                                     'array-storage-vector 'array-displacement)
+                                              (error "Cannot be used with displaced arrays.")
                                               (,%array-data-vector array))
                                           array)))))))
   (make-array-storage-vector))
@@ -81,7 +78,7 @@ possibly arrays of type simple-array (unsigned-byte 8) (*)."
 
 #+sbcl
 (defmacro with-pointer-to-array-data ((ptr-var array) &body body)
-  `(cffi:with-pointer-to-vector-data (,ptr-var (array-storage-vector ,array))
+  `(cffi:with-pointer-to-vector-data (,ptr-var (array-storage-vector& ,array))
      ,@body))
 
 #+ccl
